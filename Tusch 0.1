@@ -1,0 +1,28 @@
+desc:Tusch 0.1 Spicy Low End
+
+slider1:push=0<-120,12,1:exp>Pusch The Tusch
+//slider2:add=0<-90,12,1>Tusch
+slider3:freq=20<10,1000,1:log>Frequency
+slider4:polarity=0<0,1,1{Uppers,Downers}>Mood
+slider5:flavour=0<0,1,1{One,A Bunch}>Overtone Flavour
+
+@slider
+weight = 2 * $pi * (freq/srate);
+gain = 10^(push/20);
+dB = 10^(add/20);
+
+@sample
+tusch0 = spl0 * gain;
+flavour == 0 ? tusch0 = sqr(a0+=((tusch0-a0)*weight));
+flavour == 1 ? tusch0 = abs(a0+=((tusch0-a0)*weight));
+
+polarity == 0 ? spl0 = spl0 - tusch0;
+polarity == 1 ? spl0 = spl0 + tusch0;
+
+//Right channel
+tusch1 = spl1 * gain;
+flavour == 0 ? tusch1 = sqr(a1+=((tusch1-a1)*weight));
+flavour == 1 ? tusch1 = abs(a1+=((tusch1-a1)*weight));
+
+polarity == 0 ? spl1 = spl1 - tusch1;
+polarity == 1 ? spl1 = spl1 + tusch1;
