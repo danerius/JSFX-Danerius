@@ -1,0 +1,57 @@
+/*
+Testing an idea based on a loose interpretation on the
+Bayes Probability comparing different EMAs
+
+This is the Treble Boost
+*/
+desc:The 127 Club. A Bayes Treble Boost
+
+slider1:mode=0<0,1,1{High,Higher}>High or Higher
+slider2:0<0,5,0.25>Balance Dry/Wet
+
+@init
+//Adding a value in order for the multiplication to work
+add = 9;
+mute = 1;
+//"factorx" is to adjust values to varying samplerates
+factor1 = srate/209607;
+factor2 = srate/104803;
+factor3 = srate/52402;
+factor4 = srate/118811;
+factor5 = srate/73394;
+factor6 = srate/45283;
+
+@sample
+//Comment these variables
+s0 = spl0;
+s1 = spl1;
+
+//Left side lowpasses to be processed
+mode == 0 ? (
+ema_L0 = (L0 += ((s0-L0) * factor1)) + add;
+ema_L1 = (L1 += ((s0-L1) * factor2)) + add;
+ema_L2 = (L2 += ((s0-L2) * factor3)) + add;
+):(
+ema_L0 = (L0 += ((s0-L0) * factor4)) + add;
+ema_L1 = (L1 += ((s0-L1) * factor5)) + add;
+ema_L2 = (L2 += ((s0-L2) * factor6)) + add;
+);
+//Right side lowpasses to be processed
+mode == 0 ? (
+ema_R0 = (R0 += ((s1-R0) * factor1)) + add;
+ema_R1 = (R1 += ((s1-R1) * factor2)) + add;
+ema_R2 = (R2 += ((s1-R2) * factor3)) + add;
+):(
+ema_R0 = (R0 += ((s1-R0) * factor4)) + add;
+ema_R1 = (R1 += ((s1-R1) * factor5)) + add;
+ema_R2 = (R2 += ((s1-R2) * factor6)) + add;
+);
+//Combining the three EMAs in the Bayes Calculation
+varL = ((ema_L2 * ema_L1) / ema_L0) - add;
+varR = ((ema_R2 * ema_R1) / ema_R0) - add;
+
+!mute ? (
+spl0 = spl0 + (varL - spl0) * slider2;
+spl1 = spl1 + (varR - spl1) * slider2;
+); mute = 0;
+

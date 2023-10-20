@@ -1,0 +1,22 @@
+desc:Adjustable GrisstleWaven
+//tags: processing distortion waveshaper
+//author: LOSER
+
+slider1:1<0.5,2,0.1>Distortion (%)
+
+in_pin:left input
+in_pin:right input
+out_pin:left output
+out_pin:right output
+
+@slider
+hdistr = min(slider1/100, 0.999);
+foo = 2*hdistr/(1-hdistr);
+
+@sample
+
+spl0 = (1+foo)*spl0/(1+foo*abs(spl0));
+spl1 = (1+foo)*spl1/(1+foo*abs(spl1));
+
+spl0 = min(max(spl0,-1),1);
+spl1 = min(max(spl1,-1),1);

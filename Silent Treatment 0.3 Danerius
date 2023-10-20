@@ -1,0 +1,148 @@
+/////////////////////////////////////////////////////////////////
+// Copyright (c) 2020. Bo Danerius                             //
+// Permission to use, copy, modify, and/or distribute this     //
+// software for any purpose with or without fee is hereby      //
+// granted, provided that the above copyright notice and this  //
+// permission notice appear in all copies. CookDSP IS PROVIDED //
+// "AS IS", WITHOUT WARRANTY OF ANY KIND FROM THE AUTHOR.      //
+/////////////////////////////////////////////////////////////////
+
+//RMS code by SaulT.
+desc:Silent Treatment 0.3 Danerius
+
+import cookdsp.jsfx-inc
+slider1:24<-12,32,1>Set Bias dB
+slider2:75<0,100,5>Gate Threshold %
+slider3:0<0,1,1{Regular,Sidechain}>Sidechain
+slider4:3<1,10,0.25>Detection Speed
+//slider5:1<0,1,1{Regular,Delta}>WTFIGO
+
+
+@block
+firstrun == 0 ? notecalc();
+
+//sets rms0 as RMS length
+notecalc();
+rms0.RMS_set(factor*(240000/tempo));
+rms1.RMS_set(factor*(240000/tempo));
+
+@slider
+// Bias dB Conversion
+gainstage = 2 ^ ( slider1 / 6 );
+
+factor = 0.5/(0.5 * pow(2,slider4)); //formula to halve note values "1/1, 1/2..." etc
+sl = scale(slider2, 1, 100, 0.01, 250, 5); //scalefunction from CookDSP to adjust
+
+
+@init
+
+function notecalc(slider)
+  (
+    notevalue = 240000/tempo;    
+  );
+
+function RMS_set(ms) // Sets RMS Length
+  instance(coeff, icoeff)
+    (
+      coeff = exp(-1/(ms * 0.001 * srate));
+      icoeff = 1-coeff;
+    );
+
+function RMS(spl) //Calculates RMS Value
+  instance(rms_s, coeff, icoeff)
+    (
+      rms_s = (rms_s * this.coeff) + (icoeff * pow(spl,2));
+      pow(rms_s,0.5);
+    );
+    
+function formula(s,sl) //The formula that determines Silent Treatment.
+  (
+    1-pow(2.718,-sl*s);
+  );
+
+@sample
+//Bias. Boosts signal level for better response
+spl0 *= gainstage;
+spl1 *= gainstage;
+
+Lchan0 = spl0;
+Rchan0 = spl1;
+Sidechain = spl2;
+
+// L.s and R.s now contains the "rmslen" RMS of spl0
+slider3 == 0 ?
+  (
+    L.s = rms0.RMS(Lchan0);
+    R.s = rms0.RMS(Rchan0);
+  ):
+  (
+    L.s = rms0.RMS(spl2);
+    R.s = rms0.RMS(spl3);
+  );
+
+spl0 *= formula(L.s,sl);
+spl1 *= formula(R.s,sl);
+
+//Restores Bias to original level
+spl0 *= (1/gainstage);
+spl1 *= (1/gainstage);
+
+//WTFIGO. Delta Processing
+//slider5 <= 1 ? spl0 : spl0 = spl0 * Lchan;
+//slider5 <= 1 ? spl1 : spl1 = spl1 * Rchan;
+
+//spl0 = Lchan1 + (spl4 * -1);
+//spl1 = Rhcan1 + (spl5 * -1);
+
+@gfx 100 200
+
+gfx_a = 1.0;
+l = 25; t = 20;
+w = 200;
+h = 160;
+r = l + w;
+b = t + h;
+
+gfx_r = 0.6; gfx_g = gfx_b = 0.1;
+gfx_x = l;
+gfx_y = b;
+level1 = 2 ^ log10(rms1);
+gfx_rectto(r, b - (R.s * h));
+
+gfx_a = 1;
+l = 225; t = 20;
+w = 190;
+h = 160;
+r = l + w;
+b = t + h;
+
+gfx_r = 0.25; gfx_g = 0.25; gfx_b = 0.9;
+gfx_x = l;
+gfx_y = b;
+level0 = 2 ^ log10(rms0);
+gfx_rectto(r, b - (formula(L.s,sl) * h));
+
+
+//Line + Text for Blue Meter and Sweet Spot
+gfx_r = gfx_g = gfx_b = 1; gfx_a = 0.75;
+gfx_line(225,20,415,20);
+gfx_setfont(1,"courier bold",11);
+gfx_x = 420; gfx_y = 14;
+gfx_drawstr("100%");
+
+//Line + Text fpr Sweet Spot
+gfx_r = gfx_g = gfx_b = 1;
+gfx_line(160,90,220,90);
+gfx_line(25,90,78,90);
+gfx_setfont(1,"courier bold",11);
+gfx_x = 85; gfx_y = 85;
+gfx_drawstr("SWEET SPOT");
+
+//Text for Red + Blue Meter
+gfx_setfont(1,"georgia",32);
+gfx_x = 93; gfx_y = 137;
+gfx_drawstr("Bias");
+
+gfx_setfont(1,"georgia",32);
+gfx_x = 285; gfx_y = 137;
+gfx_drawstr("Gate");

@@ -1,0 +1,30 @@
+desc:Tool Box Danerius
+slider1:gain_db=0<-24,18,1.50>gain (dB)
+slider2:0<0,1,1{Regular,Swapped Channels}>Swap Channels
+
+in_pin:left input
+in_pin:right input
+out_pin:left output
+out_pin:right output
+
+@init
+last_gain=2^(gain_db/6);
+
+function swap(temp)
+  (
+    temp = spl0; spl0 = spl1; spl1 = temp;
+  );
+  
+@slider
+next_gain=10^(gain_db/20);
+
+@block
+d_gain = (next_gain - last_gain)/samplesblock;
+
+@sample
+spl0 *= last_gain;
+spl1 *= last_gain;
+last_gain += d_gain;
+
+slider2 > 0 ? swap(temp) : spl0 = spl0; spl1 = spl1;
+

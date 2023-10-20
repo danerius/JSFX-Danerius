@@ -1,0 +1,62 @@
+
+/////////////////////////////////////////////////////////////////
+// Copyright (c) 2020. Bo Danerius                             //
+// Permission to use, copy, modify, and/or distribute this     //
+// software for any purpose with or without fee is hereby      //
+// granted, provided that the above copyright notice and this  //
+// permission notice appear in all copies.
+/////////////////////////////////////////////////////////////////
+
+desc:Note Length To Milliseconds 0.4a Danerius
+
+slider1:5<0,10,1{1/1, 1/2, 1/4, 1/8, 1/16, 1/32, 1/64, 1/128, 1/256, 1/512, 1/1024}>Note Length
+//slider1:5<1,10,1>Note Length
+
+//remove metering
+in_pin:none
+out_pin:none
+
+@block 
+firstrun == 0 ? notecalc();
+
+@init
+
+function notecalc(slider)
+  (
+    notevalue = 240000/tempo;    
+  );
+
+@slider
+factor = 0.5/(0.5 * pow(2,slider1));
+//=====================================================================
+@gfx 0 100
+gfx_setfont(1,"courier bold", 15);
+
+gfx_x = gfx_y = 20; //x, y position
+gfx_r = 1; gfx_g = 1; gfx_b = 0; gfx_a = 1; //Yellow RGB plus alpha
+gfx_drawstr("Note Length To Milliseconds.");
+
+gfx_r = 1; gfx_g = 1; gfx_b = 1; gfx_a = 1; //White RGB plus alpha
+gfx_drawstr(" 1/"); gfx_drawnumber(1/factor,0); gfx_drawstr(" Note.");
+
+gfx_r = 1; gfx_g = 1; gfx_b = 0; gfx_a = 1; //Yellow RGB plus alpha
+
+gfx_drawstr(" @"); gfx_drawnumber(tempo,0); gfx_drawstr(" BPM. ");
+gfx_x = 20; gfx_y = gfx_y + (gfx_texth * 2.2);
+
+
+gfx_drawstr("Straight:");
+gfx_drawnumber((notevalue * factor),1); gfx_drawstr(" ms"); 
+
+gfx_x = 195; gfx_drawstr("Dotted:");
+gfx_drawnumber((notevalue * factor  * 1.5),1); gfx_drawstr(" ms");
+
+gfx_x = 360; gfx_drawstr("Triplet:");
+gfx_drawnumber((notevalue * factor * 0.666666666),1); gfx_drawstr(" ms");
+gfx_x = 20; gfx_y = gfx_y + (gfx_texth * 2);
+
+//Project Time.Still in the works....
+//gfx_drawstr("Project Time (D.H.M.S): "); gfx_printf(dt);
+
+gfx_r = gfx_g = gfx_b = 0.8; gfx_a = 1;
+gfx_line(16,44,520,44);

@@ -1,0 +1,34 @@
+/Disclaimer
+desc:Delta Encoder by Danerius
+
+in_pin:input L
+in_pin:input R
+//Reserved for Sidechaining
+in_pin:sidechain L
+in_pin:sidedchain R
+//Delta Signal
+in_pin:delta in L
+in_pin:delta in R
+
+out_pin:out L
+out_pin:out R
+//Reserved for Sidechaining
+out_pin:sidechain L
+out_pin:sidechain R
+//Delta Signal
+out_pin:delta out L
+out_pin:delta out R
+
+@init
+
+@slider
+
+@block
+
+@sample
+spl0 = spl0;
+spl1 = spl1;
+
+spl4 = spl0;
+spl5 = spl1;
+

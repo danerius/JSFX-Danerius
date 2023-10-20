@@ -1,0 +1,50 @@
+desc:Gluer Upsampled 0.1
+
+// Oversampling library by Sault + Tale
+
+//slider1:1<0.5,2,0.01>Glue
+//slider2:12<1,24,1>Peak Clip
+slider3:1<0.5,1,0.01>Character
+//slider4:0.95<0,1,0.01>Headroom
+
+import st-oversampler.jsfx-inc
+import cookdsp.jsfx-inc
+
+@init
+//pdc_bot_ch = 0; pdc_top_ch = 2;
+//pdc_delay = 7;
+
+//Automatic Headroom Calculation
+x = (slider3 * 0.045) + 0.77;
+
+function process(spl,slider)
+  ( 
+    s = sin(abs(spl));
+    spl = pow(s,slider3) * sign(spl);
+  );
+
+@slider
+
+@sample
+
+s0 = spl0;
+s1 = spl1;
+
+os0.os_up4(s0);
+os1.os_up4(s1);
+
+os0.y3 = process(os0.y3,slider1);
+os0.y2 = process(os0.y2,slider1);
+os0.y1 = process(os0.y1,slider1);
+os0.y0 = process(os0.y0,slider1);
+s0 = os0.os_down4();
+
+os1.y3 = process(os1.y3,slider1);
+os1.y2 = process(os1.y2,slider1);
+os1.y1 = process(os1.y1,slider1);
+os1.y0 = process(os1.y0,slider1);
+s1 = os1.os_down4();
+
+spl0 = s0 * x;
+spl1 = s1 * x;
+

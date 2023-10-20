@@ -1,0 +1,44 @@
+desc:Hull Moving Average Test 0.1
+slider1:10<50,0,1>CutOff
+
+@slider
+//Converts slider1 to more managable numbers 
+sli_conv = 2 ^ ( slider1 / 6 );
+//Converts lsider1 values to the values needed in the Hull Smoothing
+slow = 1/sli_conv; fast = (1/sli_conv)/2; smooth = 1/(sqrt(sli_conv));
+
+@init
+
+@sample
+//To-Do 1. Add tau
+//To-Do 2. Try four different hmaLengths
+
+//a, b, etc are for storing values. 0 = left 1 = right
+hmaSum0 = (hmaFast0 + hmaSlow0) * 0.5;
+hmaSmooth0 = (hmaSum0 * smooth) + (c0 * (1-smooth)); 
+c0 = hmaSmooth0; 
+
+hmaSlow0 = (spl0 * slow) + (a0 * (1-slow)); 
+a0 = hmaSlow0; 
+spl0 = hmaSlow0;
+
+hmaFast0 = (spl0 * fast) + (b0 * (1-fast)); 
+b0 = hmaFast0; 
+spl0 = hmaFast0;
+
+spl0 = hmaSmooth0; 
+
+//a, b, etc are for storing values. 0 = left 1 = right
+hmaSum1 = (hmaFast1 + hmaSlow1) * 0.5;
+hmaSmooth1 = (hmaSum1 * smooth) + (c1 * (1-smooth)); 
+c1 = hmaSmooth1; 
+
+hmaSlow1 = (spl1 * slow) + (a1 * (1-slow)); 
+a1 = hmaSlow1; 
+spl1 = hmaSlow1;
+
+hmaFast1 = (spl1 * fast) + (b1 * (1-fast)); 
+b1 = hmaFast1; 
+spl1 = hmaFast1;
+
+spl1 = hmaSmooth1;

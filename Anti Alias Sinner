@@ -1,0 +1,31 @@
+desc:Anti Alias Sinner Danerius
+
+slider1:2.6<1.5,3,0.01>Sine Curve Limiting
+slider2:1<0.5,1.5,0.01> Drive
+slider3:0.97<0,1,0.01>Master Volume
+
+@init
+bpos=0;
+
+@slider
+//factor = slider1;
+
+@sample
+
+//Straight processing
+tempL1 = (spl0 * slider2);
+tempR1 = (spl1 * slider2);
+
+tempL1 = sin ($pi * tempL1 / slider1);
+tempR1 = sin ($pi * tempR1 / slider1);
+
+//Mirror processing
+tempL2 = (spl0 * slider2) * -1;
+tempR2 = (spl1 * slider2) * -1;
+
+tempL2 = sin ($pi * tempL2 / slider1);
+tempR2 = sin ($pi * tempR2 / slider1);
+
+//Summing of Straight + Mirror
+spl0 = (tempL + (tempL2 * -1)) * slider3;
+spl1 = (tempR + (tempR2 * -1)) * slider3;

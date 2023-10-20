@@ -1,0 +1,103 @@
+desc:Onyans 0.3
+
+/*
+  TO-DO
+------------------------------------------------------------------------------
+  - Check if the Threshold works as intended
+  - Is the DC Blocker library code working
+  - Lowpass via the library?
+  - Is it a good idea to have the out gain connected to
+    the first wave?
+  x Go to zero spl when stopped
+  x Stepped levels for the processing. if/else thingie
+------------------------------------------------------------------------------
+*/
+
+slider1:gain=0<-15,24,0.01>gain (dB)
+// Creating a threshold so the signal dont go ape when theres just noise
+slider2:threshold=0<0,0.1,0.01>Threshold
+slider3:weight=0.5<0.05,1,0.01=log>Lowpass
+slider4:first_w=0.2<0,0.5,0.1>First Wave
+slider5:second=0<-0.20,0.9,0.1>Second Wave
+//Gonna need adjustmeent
+slider6:fold=0<0,-0.9,0.1>Foldover Distortion 
+slider7:octave=<0,1,0.1>Octave below
+
+slider10:outgain=0<-24,6,0.5>Out Gain
+
+in_pin:left input
+in_pin:right input
+out_pin:left output
+out_pin:right output
+
+import danerius.jsfx-inc
+
+@init
+//For use in the Octaver/Frequency Divider 
+flip = 0;
+
+@slider
+gain_dB=10^(gain/20);
+out_gain=10^(outgain/20);
+second_w = first_w + second;
+foldover = second_w + fold;
+
+@sample
+//Pushing the input signal for various tones
+spl0 *= gain_dB; 
+spl1 *= gain_dB;
+
+s0 = abs(spl0);
+s1 = abs(spl1);
+
+//Left channel processing
+s0 < threshold ? 0.0 : 
+s0 = (s0 > 0.8) ? (foldover):
+     (s0 > 0.5) ? (second_w): 
+     (s0 > 0.2) ? (first_w);
+
+//lowpass     
+s0 = (a0+=((s0-a0)*weight));
+
+//Right channel processing
+s1 < threshold ? 0.0 : 
+s1 = (s1 > 0.8) ? (foldover):
+     (s1 > 0.5) ? (second_w): 
+     (s1 > 0.2) ? (first_w);
+     
+// lowpass
+s1 = (a1+=((s1-a1)*weight)); 
+
+spl0 = s0 * sign(spl0);
+spl1 = s1 * sign(spl1);
+
+//Octaver Section Left
+spl0_prev <= 0 && spl0 > 0 ||
+spl0_prev >= 0 && spl0 < 0 ? 
+flip0 = !flip0;
+
+spl0_prev = spl0;
+prev_out0 = spl0;
+
+spl0 = spl0 + octave * ((flip0 ? -1 : 1) + prev_out0) / 2;
+
+//Octave Section Right
+spl1_prev <= 0 && spl1 > 0 ||
+spl1_prev >= 0 && spl1 < 0 ? 
+flip1 = !flip1;
+
+spl1_prev = spl1;
+prev_out1 = spl1;
+
+spl1 = spl1 + octave * ((flip1 ? -1 : 1) + prev_out1) / 2;
+
+
+//Applying the DC Blocker
+spl0.dcBlocker();
+spl1.dcBlocker();
+
+//Adjusting output level
+spl0 *= out_gain;
+spl1 *= out_gain;
+
+//Check the Florian stream where theyre coding pitch tracking

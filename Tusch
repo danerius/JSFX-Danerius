@@ -1,0 +1,52 @@
+desc:Tusch 0.1 Spicy Low End
+
+//Assigning slider
+slider1:var=1<0,4,0.1>Pusch The Tusch
+slider3:freq=20<10,1000,1:log>Frequency
+slider4:polarity=0<0,1,1{Uppers,Downers}>Mood
+slider5:flavour=0<0,1,1{Kill,Keep}>Overtone Flavour
+
+@slider 
+//converting slider values for later use. 
+//"weight" is the varible for determining the frequency
+weight = 2 * $pi * (freq/srate); 
+gain = 10^(push/20);
+dB = 10^(add/20);
+
+@sample
+
+//Sample values for use in calculations
+s_00 = spl0; s_01 = spl0;
+//Creating the octave above the original signal
+octave_0 = sqr(a0+=((s_00-a0)*weight));
+//Creating the multiplication factor to be used for the octave
+push_0 = 1 - abs(octave_0);
+tusch_0 = octave_0 - pusch_0;
+
+polarity == 0 ? spl0 += tusch_0;
+polarity == 1 ? spl0 -= octave_0;
+
+spl1 += octave_0;
+
+/*
+Old code that is being modified
+//push - (var * sqr(spl0));
+flavour == 0 ? tusch0 = sqr(a0+=((tusch0-a0)*weight));
+flavour == 1 ? tusch0 = abs(a0+=((tusch0-a0)*weight));
+
+polarity == 0 ? spl0 = spl0 - tusch0;
+polarity == 1 ? spl0 = spl0 + tusch0;
+
+/*
+//Right channel
+tusch1 = spl1 * gain;
+flavour == 0 ? tusch1 = sqr(a1+=((tusch1-a1)*weight));
+flavour == 1 ? tusch1 = abs(a1+=((tusch1-a1)*weight));
+
+polarity == 0 ? spl1 = spl1 - tusch1;
+polarity == 1 ? spl1 = spl1 + tusch1;
+
+/*
+- Skip the "A Bunch" Option
+- Skippa gain och lägg till formelvariabeln
+- Addera var - var * sqr(spl);

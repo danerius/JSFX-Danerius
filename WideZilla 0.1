@@ -1,0 +1,14 @@
+desc:new effect
+
+slider1:wide=0<0,1,0.01>gain (dB)
+
+@init
+
+
+@slider
+
+@sample
+//spl0 = spl0 > 0 ? spl0 : (spl0 * wide);// ? spl0 < 0 : (spl0*1); 
+
+spl0 = spl0;
+spl1 = (sqr(spl1) - 0.5) * wide;// < 0 ? spl1 : (spl1 * wide);

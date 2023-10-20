@@ -1,0 +1,39 @@
+// Disclaimer
+
+desc:Delta Decoder by Danerius
+
+slider1:0<-32,32,0.1,>Finetune to minimum level (dB)
+slider2:0<0,2000,1>Sample Delay
+
+in_pin:input L
+in_pin:input R
+
+in_pin:sidechain L
+in_pin:sidechain R
+
+in_pin:delta input L
+in_pin:delta input R
+
+out_pin:out L
+out_pin:out R
+
+@init
+
+pdc_bot_ch = 0; pdc_top_ch = 2;
+
+@slider
+dB = 2 ^ (slider1/6);
+pdc_delay = slider2;
+
+@block
+
+@sample
+spl0 = (spl0 * dB) + (spl4 * -1);
+spl1 = (spl1 * dB) + (spl5 * -1);
+
+@gfx 100 200
+
+gfx_setfont(1,"georgia",80);
+gfx_x = 60; gfx_y = 40; //x, y position
+gfx_r = gfx_g = gfx_b = 0.75; gfx_a = 1; //Yellow RGB plus alpha
+gfx_drawnumber(slider1,1); gfx_drawstr(" dB");

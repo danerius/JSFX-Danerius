@@ -1,0 +1,59 @@
+/////////////////////////////////////////////////////////////////
+// Copyright (c) 2023. Bo Danerius                             //
+// Permission to use, copy, modify, and/or distribute this     //
+// software for any purpose with or without fee is hereby      //
+// granted, provided that the above copyright notice and this  //
+// permission notice appear in all copies. CookDSP IS PROVIDED //
+// "AS IS", WITHOUT WARRANTY OF ANY KIND FROM THE AUTHOR.      //
+/////////////////////////////////////////////////////////////////
+
+//Based on Chris Johnson AirWindows idea of the feel of different tempos
+
+desc:AirWindows Tempo Paradigm 0.4 (Danerius)
+
+slider1:12<1,20,1>Parameter
+slider2:0<0,4,1{Serene/Flow, Groove/Lively, Intense/Edgy, Swagger/Attitude}> Feel
+slider3:1<0,3,1{0,1,2,3}>Decimal Places
+
+in_pin:none
+in_pin:none
+
+@init
+  sixpi = $pi*2*$pi;
+
+  function tempocalc(feel)
+    (
+      factor = pow(feel,$pi);
+      airwindows = (1/60) * factor + ($pi*feel);
+    );
+    
+@slider
+convertslider = slider2 * 0.25;
+feel = slider1 + convertslider;
+airwTempo = tempocalc(feel) + sixpi;
+
+//Look up Table-----------------------------------
+number = (slider1*4) + slider2;
+
+Factor = (number == 57 ? Something : 
+         (number == 58 ? Other));
+//----------------------------------------------
+
+@gfx 100 200
+
+gfx_knob(slider1, 50, 50, 50);
+
+//Tempo Feel typography
+//gfx_setfont(1,"georgia",60);
+//gfx_x = 40; gfx_y = 20; //x, y position
+//gfx_r = 1; gfx_g = 1; gfx_b = 1; gfx_a = 1; //Yellow RGB plus alpha
+
+//Look up Table printed here-------------------------------------------
+//gfx_drawstr("Feel = "); gfx_drawstr(Factor); gfx_drawnumber(number,0);
+
+//BPM Typography
+gfx_setfont(1,"georgia",80);
+gfx_x = 40; gfx_y = 20; //x, y position
+gfx_r = 1; gfx_g = 1; gfx_b = 0; gfx_a = 1; //Yellow RGB plus alpha
+gfx_drawnumber(airwTempo,slider3); gfx_drawstr(" BPM");
+

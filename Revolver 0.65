@@ -1,0 +1,77 @@
+   /////////////////////////////////////////////////////////////////
+// Copyright (c) 2021. Bo Danerius                             //
+// Permission to use, copy, modify, and/or distribute this     //
+// software for any purpose with or without fee is hereby      //
+// granted, provided that the above copyright notice and this  //
+// permission notice appear in all copies.                     //
+/////////////////////////////////////////////////////////////////
+
+desc:Revolver Compressor 0.65(Danerius)
+/*
+  TO-DO.
+    1. Bättre smoothing? Hull från library?
+    2. Formel som kompenserar för character. Stå mera längre ner 
+    3.Instruction Manual...!
+/*
+
+slider1:0<-12,24,1>Gain
+slider2:hp_w=0.05<0.001,0.1,0.001>HighPass
+slider3:1<0,24,0.1:sqr=4>Compression 
+slider4:character=2<0,3,1>Character
+slider6:0<-24,24,0.1>Make Up Gain
+slider8:sidechain=0<0,1,1{Internal, External}>Sidechain
+
+slider10:revolver=0<0,1,0.01>Compression
+
+in_pin:left input
+in_pin:right input
+in_pin:left sidechain
+in_pin:right sidechain
+out_pin:left output
+out_pin:right output
+
+@slider
+threshold = 2^(slider1/6);
+makeup = 2^(slider6/6);
+
+@init
+
+@sample 
+//Creating variables for massaging spl in the compressor
+sidechain == 0 ? (
+    s0 = spl0;
+    s1 = spl1;
+):(
+    s0 = spl2;
+    s1 = spl3;
+);
+
+//Threshold. Boosts signal level for better response
+s0 *= threshold;
+s1 *= threshold;
+
+//High Pass Filter for the Pilot Signal
+s0 -= (n0+=((s0-n0)*hp_w));
+s1 -= (n1+=((s1-n1)*hp_w));
+
+//The squaring part of the RMS for use in 00the Hull Average
+//DEfintely maybe skip the double squaring...
+character == 0 ? splx = sqrt(sqrt(s0))+sqrt(sqrt(s1))*0.0625;
+character == 1 ? splx = sqrt(s0)+sqrt(s1)*0.125;
+character == 2 ? splx = sqr(s0)+sqr(s1)*0.5;
+character == 3 ? splx = sqr(sqr(s0))+sqr(sqr(s1));
+//splx = pow(s0,character)+pow(s1,character);
+splx = (p+=((splx-p)*0.0005));
+
+//Formula for pilot signal
+revolver = pow(2,(-slider3*splx));
+
+//Compressing the signal + makeup gain + threshold compensation
+sidechain == 0 ? (
+    spl0 = spl0 * revolver * makeup / threshold;;
+    spl1 = spl1 * revolver * makeup / threshold;;
+):(
+    spl0 = spl0 * revolver * makeup;
+    spl1 = spl1 * revolver * makeup;
+); 
+

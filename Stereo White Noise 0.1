@@ -1,0 +1,34 @@
+desc:Stereo White Noise Generator
+//tags: analysis generator synthesis
+//author: LOSER
+
+slider1:-6<-48,6,1>Dry Volume (dB)
+slider3:pan0=100<0,100,0.1>Mono <-> Stereo (%)
+
+@init
+//First time I wrote a function from scratch
+//Nothing fancy. Just a regular function
+function noise(spl)
+  (
+    rand(2)-1;
+  );
+
+//slider to decibel conversion
+@slider
+dB=2^(slider1/6);
+
+//Convert Panning numbers to useful ones
+pan1 = pan0/200+0.5;
+pan2 = abs(pan1-1);
+
+//Two separe noise generators using the function in @init
+@sample
+spl0=noise()*dB;
+spl1=noise()*dB;
+
+//Seamless mono conversion. L and R are stored
+L = spl0;
+R = spl1;
+
+spl0 = (spl0*pan1)+(R*pan2);
+spl1 = (spl1*pan1)+(L*pan2);

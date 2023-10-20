@@ -1,0 +1,71 @@
+desc:Create + Adjust DC. 0.1 (Danerius)
+
+slider1:gain=0<-1,2,0.01>DC Gain
+slider2:foo=0<0,3,1{Mono,Left,Right}>What Channel
+//slider3:polarity=0<0,1,1{Positive,Negative}>Polarity
+
+@slider
+//gain_dBconv = 2^(gain/6);
+
+@init
+// Random Background Color Generator 
+// to be used in the gfx section
+rand_r = rand(1);
+rand_g = rand(1)*0.25;
+rand_b = rand(1)*0.5;
+
+//This produces the DC
+@sample
+foo == 0 ? spl0 = spl1 = gain;
+foo == 1 ? spl0 = gain;
+foo == 2 ? spl1 = gain;
+
+@gfx 600 60
+//Random color highlight
+gfx_a = 1.0;
+gfx_r = rand_r*1.25;
+gfx_g = rand_g*1.25;
+gfx_b = rand_b*1.25;
+gfx_rect(0,0,600,5);
+
+//Random color rectangle
+gfx_a = 1.0;
+gfx_r = rand_r;
+gfx_g = rand_g;
+gfx_b = rand_b;
+gfx_rect(0,5,600,50);
+
+//Random color Shadow
+gfx_a = 1.0;
+gfx_r = rand_r*0.9;
+gfx_g = rand_g*0.9;
+gfx_b = rand_b*0.9;
+gfx_rect(0,55,600,5);
+
+//The colored below the displa 
+gfx_a = 1.0;
+gfx_r = rand_r*0.5;
+gfx_g = rand_g*0.5;
+gfx_b = rand_b*0.5;
+gfx_rect(0,185,1000,50);
+
+//Text section
+gfx_r = gfx_g = gfx_b = 1;
+gfx_setfont(1,"georgia",18);
+gfx_x = 30; gfx_y = 20;
+gfx_drawnumber(gain,2);
+gfx_drawstr(" Sample Level");
+
+gfx_setfont(1,"georgia",18);
+gfx_x = 210; gfx_y = 20;
+foo == 0 ? gfx_drawstr("Mono Sum");
+foo == 1 ? gfx_drawstr("Left Channel");
+foo == 2 ? gfx_drawstr("Right Channel");
+
+gfx_r = gfx_g = gfx_b = 0.5;
+gfx_line(11,10,11,50);
+gfx_line(15,10,15,50);
+gfx_line(193,10,193,50);
+gfx_line(197,10,197,50);
+gfx_line(340,10,340,50);
+gfx_line(344,10,344,50);

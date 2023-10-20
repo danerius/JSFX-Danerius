@@ -1,0 +1,21 @@
+desc:Loud Sinner Danerius
+
+slider1:2.2<1.5,3,0.01>Keep between 1.8 <-> 2.2
+slider2:-0.3<-120,0,0.1>Max Level dB
+
+@init
+bpos=0;
+
+@slider
+threshold = 2 ^ (slider2/6);
+
+@sample
+
+tempL = spl0;
+tempR = spl1;
+
+tempL = sin ($pi * tempL / slider1);
+tempR = sin ($pi * tempR / slider1);
+
+spl0 = tempL * slider2;
+spl1 = tempR * slider2;

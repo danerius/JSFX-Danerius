@@ -1,0 +1,41 @@
+desc:Ljus. Shine A Light On Your Low End
+
+slider1:add=0<0,2,0.05:log>Adding Ljus
+slider2:freq=120<20,650,10:log>LowPass
+slider3:flav=0<0,2,1{Low,Medium,High}>Flavour Of The Formula
+
+@slider
+dB  = 10^(gain_db/20); //For later use in the adding section
+weight = 2 * $pi * (freq/srate);
+
+@sample
+//Left Channel
+prc0 = spl0; //Creating a variable for the left channel processing
+prc0 = min(max(prc0,-1),1); //Hard clipping sample levels to max 0 dB
+prc0  = (p0+=((prc0-p0)*weight)); //Lowpassing the input signal
+
+s0 = abs(prc0); //Absolute values for square + squarerooting to work
+flav == 0 ? s0 = abs(prc0) - sqr(prc0);
+flav == 1 ? s0 = sqrt(prc0) - sqr(prc0); //The formula itself where lower levels gets processed more
+flav == 2 ? s0 = sqrt(prc0) - abs(prc0);
+
+prc0 = (s0 * sign(prc0)); //Reverting the absolute values back negative and positive again
+prc0 = prc0 - spl0; //Subtracting the original signal to only get the processed one
+
+prc0  = (a0+=((prc0-a0)*weight)); //Lowpassing again to keep things tidy
+
+spl0 = spl0 + (prc0 * add); //Adding in the processed signal into the audio
+
+//Right Channel
+prc1 = spl1; //Creating a variable for the left channel processing
+prc1 = min(max(prc1,-1),1); //Hard clipping sample levels to max 0 dB
+prc1  = (p1+=((prc1-p1)*weight)); //Lowpassing the input signal
+
+s1 = abs(prc1); //Absolute values for square + squarerooting to work
+s1 = sqrt(prc1) - sqr(prc1); //The formula itself where lower levels gets processed more
+prc1 = (s1 * sign(prc1)); //Reverting the absolute values back negative and positive again
+prc1 = prc1 - spl1; //Subtracting the original signal to only get the processed one
+
+prc1  = (a1+=((prc1-a1)*weight)); //Lowpassing again to keep things tidy
+
+spl1 = spl1 + (prc1 * add); //Adding in the processed signal into the audio

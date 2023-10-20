@@ -1,0 +1,39 @@
+desc:Tempo Delay Danerius
+
+slider1:1.5<0.25,8,0.125>Length 1/4 note
+
+@init
+
+firstrun = 0;
+function getlength()
+(
+  echolength = srate * (60/tempo) * slider1;
+);
+
+
+@slider
+
+getlength();
+
+
+@block
+
+firstrun == 0 ?
+  getlength();
+
+
+firstrun = 1;
+
+tempo != tempo_old ? getlength();
+tempo_old = tempo;
+
+@sample
+bufpos[0] = spl0 ;
+bufpos = bufpos + 1 ;
+bufpos > echolength ? bufpos = 0;
+spl0 = spl0 + bufpos[0];
+
+bufpos[0] = spl1;
+bufpos = bufpos + 1;
+bufpos > echolength ? bufpos = 0;
+spl1 = spl1 + bufpos[0];

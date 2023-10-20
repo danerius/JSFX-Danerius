@@ -1,0 +1,48 @@
+desc:MonoLilith Mixer Helper 1.0
+
+slider1:audio_out=0<0,3,1{Stereo, Mono ,Side}>Audio Out
+slider2:speaker=0<0,2,1{Stereo, Left, Right}>Speaker
+slider3:gain=0<-32,6,0.1>Volume dB
+slider4:side_bonus=0<0,1,{Regular,L/R Sides}>Side Bonus (nulls "Audio Out" and "Speaker"
+
+@slider
+gain_dB=10^(gain/20);
+
+@sample
+L_process = side0 = spl0;
+R_process = side1 = spl1;
+
+//Regular Stereo Processing
+audio_out == 0 ? L_temp = L_process;
+audio_out == 0 ? R_temp = R_process;
+//The Mono bit
+audio_out == 1 ? L_temp = L_process + R_process * 0.5;
+audio_out == 1 ? R_temp = L_process + R_process * 0.5;
+//The Side bit
+audio_out == 2 ? L_temp = L_process - R_process * 0.5;
+audio_out == 2 ? R_temp = L_process - R_process * 0.5;
+
+//Speaker in stereo
+speaker == 0 ? L_Out = L_temp;
+speaker == 0 ? R_Out = R_temp;
+//Speaker Left
+speaker == 1 ? L_Out = L_temp;
+speaker == 1 ? R_Out = 0;
+//Speaker Right
+speaker == 2 ? L_Out = 0;
+speaker == 2 ? R_Out = R_temp;
+
+//Side Bouns Processing
+side_bonus == 0 ? spl0 = L_Out * gain_dB;
+side_bonus == 0 ? spl1 = R_Out * gain_dB;
+side_bonus == 1 ? spl0 = (side0 - side1) * gain_dB;
+side_bonus == 1 ? spl1 = (side1 - side0) * gain_dB;
+
+/*
+Lägg upp de enskilda funktionerna och testa för sej
+Lägg upp några grejer i taget för slider-val
+Sista raden... spl = Out * gain...
+
+
+*/
+

@@ -1,0 +1,15 @@
+desc:Monoizer. Stereo To Mono Danerius
+
+@init
+bpos=0;
+
+@slider
+
+
+@block
+
+
+@sample
+spl0=(spl0+spl1)*0.5;
+spl1=spl0;
+

@@ -1,0 +1,29 @@
+//Waveshaper code borrowed from Blue Mango. 
+//Idea is to blend it in with the orignal signal
+//Could be useful for dist in other plugins.
+
+desc:Blue Mango WaveShaper
+
+slider1:0<0,1,0.01>Bring It On (Mix)
+slider2:shape=0.5<0,1,0.01>WaveShape
+
+@slider
+//Creating more managable slider values
+blend = sqr(slider1);
+var = 1.4-slider1;
+
+@slider
+
+@sample
+//WaveShaping
+s0 = abs(spl0);
+s0 = s0/(s0+shape);
+varL = s0 * sign(spl0);
+
+s1 = abs(spl1);
+s1 = s1/(s1+shape);
+varR = s1 * sign(spl1);
+
+//Blend/Mix code
+spl0 = spl0 + (varL - spl0) * blend;
+spl1 = spl1 + (varR - spl1) * blend;

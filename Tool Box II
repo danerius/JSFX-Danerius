@@ -1,0 +1,35 @@
+desc:Tool Box Danerius II
+slider1:gain=0<-24,18,1.50>gain (dB)
+slider2:0<0,1,1{Regular,Swapped}>Phase Swap
+slider3:pan0=100<-100,100,0.1>Panning
+
+@slider
+//slider to dB conversion
+gain_dB=2^(gain/6);
+
+//Convert Panning numbers to useful ones
+pan1 = pan0/200+0.5;
+pan2 = abs(pan1-1);
+
+@init
+
+//Add the if/else from @sample
+function swap(temp)
+  (
+    temp = -1*spl0; spl0 = -1*spl1; spl1 = temp;
+  );
+  
+@sample
+
+slider2 > 0 ? swap(temp) : spl0 = spl0; spl1 = spl1;
+
+L = spl0;
+R = spl1;
+
+spl0 = (spl0*pan1)+(R*pan2);
+spl1 = (spl1*pan1)+(L*pan2);
+
+spl0 *= gain_dB;
+spl1 *= gain_dB;
+
+

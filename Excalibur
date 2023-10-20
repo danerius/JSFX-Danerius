@@ -1,0 +1,30 @@
+desc:Excalibur. Heres Your Bass Cut
+
+slider1:gain=0<-60,12,1>gain (dB)
+slider2:locut=1<0,0.5,0.01:log>Sidechain Filter
+slider3:option=0<0,2,1{Mild,Mildew,Mildred,}>Flavour
+
+slider5:weight=0<0,1,0.01>Excalibur
+
+in_pin:left input
+in_pin:right input
+in_pin:left sidechain
+in_pin:right sidechain
+out_pin:left output
+out_pin:right output
+ 
+
+@slider
+dB=10^(gain/20);
+
+@sample
+sum_spl = ((spl2 + spl3) * 0.5)  * dB;
+sum_spl = min(max(sum_spl,-1),1);
+sum_spl = (s0+=((sum_spl-s0)*locut));
+
+option == 0 ? weight =  sqr(sum_spl);
+option == 1 ? weight =  abs(sum_spl);
+option == 2 ? weight = sqrt(sum_spl);
+
+spl0 -= (a0+=((spl0-a0)*weight)); // lowpass
+spl1 -= (a1+=((spl1-a1)*weight)); // highpass
