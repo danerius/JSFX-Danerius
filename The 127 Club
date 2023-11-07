@@ -47,11 +47,12 @@ ema_R1 = (R1 += ((s1-R1) * factor5)) + add;
 ema_R2 = (R2 += ((s1-R2) * factor6)) + add;
 );
 //Combining the three EMAs in the Bayes Calculation
-varL = ((ema_L2 * ema_L1) / ema_L0) - add;
-varR = ((ema_R2 * ema_R1) / ema_R0) - add;
+varL = ema_L2 * ema_L1;
+varR = ema_R2 * ema_R1;
 
-!mute ? (
-spl0 = spl0 + (varL - spl0) * slider2;
-spl1 = spl1 + (varR - spl1) * slider2;
-); mute = 0;
+outL = (varL / ema_L0) - add;
+outR = (varR / ema_R0) - add;
 
+
+spl0 = spl0 + (outL - spl0) * slider2;
+spl1 = spl1 + (outR - spl1) * slider2;
