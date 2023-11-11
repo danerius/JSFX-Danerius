@@ -1,0 +1,43 @@
+desc:Rondell. Testing more squared weirdness
+
+slider1:freqLo=10<1,120,1:log>LoCut
+//slider2:freqHi=10000<500,10000,1:log>HiCut
+slider3:flav=0<0,1,1{Square,SquareRoot}>Flavour
+slider4:dB=-6<-24,6,1>Out Level
+
+@init
+
+@slider
+gain=10^(dB/20);
+//Getting the right slider frequency values
+wLo = 2 * $pi * (freqLo/srate); 
+//wHi = 2 * $pi * (freqHi/srate);
+
+@sample
+flav == 0 ? (s0 = sqr(spl0)) : (s0 = sqrt(spl0));
+spl0 = s0 * sign(spl0);
+
+spl0 -= (a0+=((spl0-a0)*wLo)); // highpass
+//spl0  = (b0+=((spl0-b0)*wHi)); // highpass
+
+flav == 0 ? s1 = (sqrt(spl1)) :  s1 = (sqr(spl1));
+spl1 = s1 * sign(spl1);
+
+spl1 -= (a1+=((spl1-a1)*wLo)); // highpass
+//spl1  = (b1+=((spl1-b1)*wHi)); // highpass
+
+spl0 *= gain;
+spl1 *= gain;
+/*
+Objective ====================================
+- Square the signal then flip it back with sign
+- Process it with a filter. High and low pass
+- Square root t back using flip back with sign
+==============================================
+Required
+==============================================
+- Two different abs/sign per channel
+- EMAs... maybe this is good time to try RBJ Filters?
+
+Add later
+- Choice between squarings
