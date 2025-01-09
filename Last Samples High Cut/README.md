@@ -7,7 +7,6 @@ A lightweight JSFX plugin that implements a simple but effective lowpass filter.
 ## Parameters
 - **High Cut** (0.5 - 1.0): Controls the mix between the current and previous sample. 
   - At 0.5: Equal mix between current and previous sample
-  - At 1.0: Maximum filtering effect (more previous sample)
 
 ## Technical Details
 The plugin processes left and right channels independently. For each channel:
