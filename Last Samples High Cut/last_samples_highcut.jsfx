@@ -1,0 +1,23 @@
+desc: Last Samples High Cut (Danerius)
+//tags: filter processing
+//author: Danerius
+//An adjustable averageing of the two last samples
+
+slider1:0<0.5,1,0.01>High Cut
+
+@init
+prev_left = 0;
+prev_right = 0;
+
+@sample
+// Left channel
+current_left = spl0;
+output_left = current_left * (1-slider1) + prev_left * slider1;
+prev_left = current_left;
+spl0 = output_left;
+
+// Right channel
+current_right = spl1;
+output_right = current_right * (1-slider1) + prev_right * slider1;
+prev_right = current_right;
+spl1 = output_right;
