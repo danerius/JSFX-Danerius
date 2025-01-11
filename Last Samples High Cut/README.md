@@ -2,7 +2,7 @@
 # Last Samples High Cut
 
 ## Overview
-A lightweight JSFX plugin that implements a simple but effective lowpass filter. The plugin works by averaging the current sample with the previous sample, with an adjustable blend ratio. Great for taming harsh high frequencies and adding a warm, vintagey feel to your audio.
+A lightweight JSFX plugin that implements a simple but effective lowpass filter. The plugin works by averaging the current sample with the previous sample, with an adjustable blend ratio. Great for taming harsh high frequencies and adding a warm, vintagey feel to your audio. Gonna work excellent with 48 kHz and lower sample rates. Not so much at higher ones.
 
 ## Parameters
 - **High Cut** (0.5 - 1.0): Controls the mix between the current and previous sample. 
